@@ -54,43 +54,26 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public ServiceProvider addCountry(int serviceProviderId, String countryName) throws Exception{
         //add a country under the serviceProvider and return respective service provider
-        ServiceProvider serviceProvider= serviceProviderRepository1.findById(serviceProviderId).orElse(null);
-        if(serviceProvider==null){
-            throw new Exception("Invalid Service Provider ID");
-        }
 
-        //country name would be a 3-character string out of ind, aus, usa, chi, jpn. Each character can be in uppercase or lowercase.
-        Country country = new Country();
-        if(countryName.equalsIgnoreCase("IND")){
-            country.setCountryName(CountryName.IND);
-            country.setCode(CountryName.IND.toCode());
-        }
-        else if(countryName.equalsIgnoreCase("AUS")){
-            country.setCountryName(CountryName.AUS);
-            country.setCode(CountryName.AUS.toCode());
-        }
-        else if(countryName.equalsIgnoreCase("USA")){
-            country.setCountryName(CountryName.USA);
-            country.setCode(CountryName.USA.toCode());
-        }
-        else if(countryName.equalsIgnoreCase("CHI")){
-            country.setCountryName(CountryName.CHI);
-            country.setCode(CountryName.CHI.toCode());
-        }
-        else if(countryName.equalsIgnoreCase("JPN")){
-            country.setCountryName(CountryName.JPN);
-            country.setCode(CountryName.JPN.toCode());
-        }
-        else{
-            throw new Exception("Country not found");
-        }
-        country.setUser(null);
-        serviceProvider.getCountryList().add(country);
-        country.setServiceProvider(serviceProvider);
-        countryRepository1.save(country);
-        return serviceProviderRepository1.save(serviceProvider);
         // You should create a new Country object based on the given country name and add it to the country list of the service provider.
         // Note that the user attribute of the country in this case would be null.
         //In case country name is not amongst the above mentioned strings, throw "Country not found" exception
+        boolean isCountryPresent = false;
+
+        String str = countryName.toUpperCase();
+        if(!str.equals("IND") && !str.equals("JPN") && !str.equals("AUS") && !str.equals("CHI") && !str.equals("USA")){
+            throw  new Exception("Country not found");
+        }
+        ServiceProvider serviceProvider = serviceProviderRepository1.findById(serviceProviderId).get();
+
+        Country country = new Country(CountryName.valueOf(str), CountryName.valueOf(str).toCode());
+
+
+        country.setServiceProvider(serviceProvider);
+        serviceProvider.getCountryList().add(country);
+
+        serviceProviderRepository1.save(serviceProvider);
+
+        return serviceProvider;
     }
 }
